@@ -1,7 +1,7 @@
 import { Slug } from "./value-objects/slug";
-import { Entity } from "../../core/entities/entity";
-import { UniqueEntityID } from "../../core/entities/unique-entity-id";
-import { Optional } from "../../core/types/optional";
+import { Entity } from "../../../../core/entities/entity";
+import { UniqueEntityID } from "../../../../core/entities/unique-entity-id";
+import { Optional } from "@/core/types/optional";
 import dayjs from "dayjs";
 
 interface QuestionProps {
@@ -83,5 +83,6 @@ export class Question extends Entity<QuestionProps> {
       },
       id
     );
+    return question;
   }
 }
