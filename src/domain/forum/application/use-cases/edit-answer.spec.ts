@@ -31,7 +31,6 @@ describe("Edit Answer", () => {
     });
 
     expect(inMemoryAnswersRepository.items[0]).toMatchObject({
-        title: "Pergunta teste",
         content: "Conteúdo teste",
     });
   });
