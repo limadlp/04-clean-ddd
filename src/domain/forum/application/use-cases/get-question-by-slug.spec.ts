@@ -1,8 +1,7 @@
-import { InMemoryQuestionsRepository } from "./../../../../../test/repositories/in-memory-questions-repository";
-import { expect, describe, beforeEach, it } from "vitest";
 import { GetQuestionBySlugUseCase } from "./get-question-by-slug";
+import { InMemoryQuestionsRepository } from "test/repositories/in-memory-questions-repository";
+import { Slug } from "@/domain/forum/enterprise/entities/value-objects/slug";
 import { makeQuestion } from "test/factories/make-question";
-import { Slug } from "../../enterprise/entities/value-objects/slug";
 
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository;
 let sut: GetQuestionBySlugUseCase;
@@ -14,18 +13,20 @@ describe("Get Question By Slug", () => {
   });
 
   it("should be able to get a question by slug", async () => {
-    const newQuestion = makeQuestion({ slug: Slug.create("example-question") });
+    const newQuestion = makeQuestion({
+      slug: Slug.create("example-question"),
+    });
 
-    inMemoryQuestionsRepository.create(newQuestion);
+    await inMemoryQuestionsRepository.create(newQuestion);
 
-    const { question } = await sut.execute({
+    const result = await sut.execute({
       slug: "example-question",
     });
 
-    console.log(newQuestion);
-
-    expect(question.id).toBeTruthy;
-    expect(question.content).toEqual(newQuestion.content);
-    expect(inMemoryQuestionsRepository.items[0].id).toEqual(question.id);
+    expect(result.value).toMatchObject({
+      question: expect.objectContaining({
+        title: newQuestion.title,
+      }),
+    })
   });
 });
