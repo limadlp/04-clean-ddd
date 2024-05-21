@@ -6,15 +6,23 @@ import { InMemoryQuestionsRepository } from "test/repositories/in-memory-questio
 import { ChooseQuestionBestAnswerUseCase } from "./choose-question-best-answer";
 import { makeQuestion } from "test/factories/make-question";
 import { NotAllowedError } from "./errors/not-allowed-error";
+import { InMemoryAnswerAttachmentsRepository } from "test/repositories/in-memory-answer-attachments-repository";
+import { InMemoryQuestionAttachmentsRepository } from "test/repositories/in-memory-question-attachments-repository";
 
+let inMemoryAnswerAttachmentsRepository: InMemoryAnswerAttachmentsRepository;
+let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentsRepository;
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository;
 let inMemoryAnswersRepository: InMemoryAnswersRepository;
 let sut: ChooseQuestionBestAnswerUseCase;
 
 describe("Choose Question Best Answer", () => {
   beforeEach(() => {
-    inMemoryAnswersRepository = new InMemoryAnswersRepository();
-    inMemoryQuestionsRepository = new InMemoryQuestionsRepository();
+    inMemoryAnswersRepository = new InMemoryAnswersRepository(
+      inMemoryAnswerAttachmentsRepository
+    );
+    inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
+      inMemoryQuestionAttachmentsRepository
+    );
     sut = new ChooseQuestionBestAnswerUseCase(
       inMemoryQuestionsRepository,
       inMemoryAnswersRepository
@@ -24,7 +32,7 @@ describe("Choose Question Best Answer", () => {
   it("should be able to choose the question's best answer", async () => {
     const question = makeQuestion();
     const answer = makeAnswer({
-        questionId: question.id,
+      questionId: question.id,
     });
 
     await inMemoryQuestionsRepository.create(question);
@@ -35,17 +43,17 @@ describe("Choose Question Best Answer", () => {
       authorId: question.authorId.toString(),
     });
 
-    expect(inMemoryQuestionsRepository.items[0].bestAnswerId).toEqual(answer.id);
+    expect(inMemoryQuestionsRepository.items[0].bestAnswerId).toEqual(
+      answer.id
+    );
   });
 
   it("should not be able to choose another user question best answer", async () => {
-    const question = makeQuestion(
-        {
-            authorId: new UniqueEntityID("author-1"),
-        }
-    );
+    const question = makeQuestion({
+      authorId: new UniqueEntityID("author-1"),
+    });
     const answer = makeAnswer({
-        questionId: question.id,
+      questionId: question.id,
     });
 
     await inMemoryQuestionsRepository.create(question);
@@ -55,7 +63,6 @@ describe("Choose Question Best Answer", () => {
       answerId: answer.id.toString(),
       authorId: "author-2",
     });
-
 
     expect(result.isLeft()).toBe(true);
     expect(result.value).toBeInstanceOf(NotAllowedError);

@@ -2,13 +2,17 @@ import { InMemoryQuestionsRepository } from "./../../../../../test/repositories/
 import { expect, describe, beforeEach, it } from "vitest";
 import { makeQuestion } from "test/factories/make-question";
 import { FetchRecentQuestionsUseCase } from "./fetch-recent-questions";
+import { InMemoryQuestionAttachmentsRepository } from "test/repositories/in-memory-question-attachments-repository";
 
+let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentsRepository;
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository;
 let sut: FetchRecentQuestionsUseCase;
 
 describe("Fetch Recent Questions", () => {
   beforeEach(() => {
-    inMemoryQuestionsRepository = new InMemoryQuestionsRepository();
+    inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
+      inMemoryQuestionAttachmentsRepository
+    );
     sut = new FetchRecentQuestionsUseCase(inMemoryQuestionsRepository);
   });
 
@@ -35,14 +39,9 @@ describe("Fetch Recent Questions", () => {
   });
 
   it("should be able to fetch paginated recent questions", async () => {
-   
-    for (let i = 1; i<= 22; i++){
-        await inMemoryQuestionsRepository.create(
-            makeQuestion()
-          );
+    for (let i = 1; i <= 22; i++) {
+      await inMemoryQuestionsRepository.create(makeQuestion());
     }
-    
- 
 
     const result = await sut.execute({
       page: 2,
