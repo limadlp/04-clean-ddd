@@ -13,9 +13,11 @@ let sut: EditQuestionUseCase;
 
 describe("Edit Question", () => {
   beforeEach(() => {
-    inMemoryQuestionsRepository = new InMemoryQuestionsRepository();
     inMemoryQuestionAttachmentsRepository =
       new InMemoryQuestionAttachmentsRepository();
+    inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
+      inMemoryQuestionAttachmentsRepository
+    );
     sut = new EditQuestionUseCase(
       inMemoryQuestionsRepository,
       inMemoryQuestionAttachmentsRepository
@@ -40,7 +42,7 @@ describe("Edit Question", () => {
       makeQuestionAttachment({
         questionId: newQuestion.id,
         attachmentId: new UniqueEntityID("1"),
-      }),
+      })
     );
 
     await sut.execute({
@@ -48,17 +50,21 @@ describe("Edit Question", () => {
       authorId: "author-1",
       title: "Pergunta teste",
       content: "Conteúdo teste",
-      attachmentsIds: ['1','3'],
+      attachmentsIds: ["1", "3"],
     });
 
     expect(inMemoryQuestionsRepository.items[0]).toMatchObject({
       title: "Pergunta teste",
       content: "Conteúdo teste",
     });
-    expect(inMemoryQuestionsRepository.items[0].attachments.currentItems).toHaveLength(2);
-    expect(inMemoryQuestionsRepository.items[0].attachments.currentItems).toEqual([
-      expect.objectContaining({attachmentId: new UniqueEntityID("1")}),
-      expect.objectContaining({attachmentId: new UniqueEntityID("3")}),
+    expect(
+      inMemoryQuestionsRepository.items[0].attachments.currentItems
+    ).toHaveLength(2);
+    expect(
+      inMemoryQuestionsRepository.items[0].attachments.currentItems
+    ).toEqual([
+      expect.objectContaining({ attachmentId: new UniqueEntityID("1") }),
+      expect.objectContaining({ attachmentId: new UniqueEntityID("3") }),
     ]);
   });
 
